@@ -5,6 +5,8 @@ import Footer from "@/components/common/Footer";
 import Hero from "@/components/home/hero";
 import WhyChooseAIdaptics from "@/components/home/whychoose";
 import AIdaptics from "@/components/home/AIdaptics";
+import Meeting from "@/components/home/meeting";
+import FAQs from "@/components/home/Faqs";
 
 export default function Home() {
   return (
@@ -14,6 +16,8 @@ export default function Home() {
 
       <Hero />
       <WhyChooseAIdaptics />
+      <Meeting />
+      <FAQs />
       <AIdaptics />
 
       <Footer />
