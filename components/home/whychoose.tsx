@@ -17,8 +17,8 @@ interface StatCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
   return (
-    <div className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
-      <GlowingEffect 
+    <div id="services" className="relative h-full rounded-2xl border p-2 md:rounded-3xl md:p-3">
+      <GlowingEffect
         blur={0}
         borderWidth={3}
         spread={80}
@@ -74,7 +74,7 @@ const StatCard: React.FC<StatCardProps> = ({ value, label }) => {
 
 const WhyChooseAIdaptics: React.FC = () => {
   return (
-    <section className="py-16 px-4 bg-black text-white">
+    <section  id="services" className="py-16 px-4 bg-black text-white">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-4xl font-bold text-center mb-3">
           Why Choose <span className="text-indigo-400">AIdaptics</span>
