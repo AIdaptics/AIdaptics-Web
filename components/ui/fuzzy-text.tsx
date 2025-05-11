@@ -223,10 +223,9 @@ const FuzzyText = React.forwardRef<
       isCancelled = true
       window.cancelAnimationFrame(animationFrameId)
       if (canvas && (canvas as HTMLCanvasElement & { cleanupFuzzyText?: () => void }).cleanupFuzzyText) {
-        canvas.cleanupFuzzyText()
+        (canvas as HTMLCanvasElement & { cleanupFuzzyText?: () => void }).cleanupFuzzyText?.()
       }
-    }
-  }, [
+    }  }, [
     children,
     fontSize,
     fontWeight,
