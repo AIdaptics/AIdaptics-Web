@@ -63,7 +63,7 @@ const StatCard: React.FC<StatCardProps> = ({ value, label }) => {
       <div className="border-0.75 relative flex h-full flex-col justify-between overflow-hidden rounded-xl p-6 md:p-6 dark:shadow-[0px_0px_27px_0px_#2D2D2D]">
         <div className="relative flex flex-1 flex-col justify-between gap-3">
           <div className="text-center">
-            <div className="text-4xl font-bold text-blue-500 mb-2">{value}</div>
+            <div className="text-4xl font-bold text-indigo-400 mb-2">{value}</div>
             <div className="text-gray-400">{label}</div>
           </div>
         </div>
@@ -77,7 +77,7 @@ const WhyChooseAIdaptics: React.FC = () => {
     <section className="py-16 px-4 bg-black text-white">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-4xl font-bold text-center mb-3">
-          Why Choose <span className="text-blue-500">AIdaptics</span>
+          Why Choose <span className="text-indigo-400">AIdaptics</span>
         </h2>
         
         <p className="text-white/70 text-center max-w-3xl mx-auto mb-12">

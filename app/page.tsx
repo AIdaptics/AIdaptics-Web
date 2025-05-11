@@ -4,6 +4,7 @@ import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import Hero from "@/components/home/hero";
 import WhyChooseAIdaptics from "@/components/home/whychoose";
+import AIdaptics from "@/components/home/AIdaptics";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
 
       <Hero />
       <WhyChooseAIdaptics />
+      <AIdaptics />
 
       <Footer />
     </div>

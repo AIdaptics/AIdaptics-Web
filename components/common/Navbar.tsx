@@ -8,6 +8,12 @@ import Link from "next/link";
 import { ChevronRight, Menu } from "lucide-react";
 import { motion } from "framer-motion";
 
+// Custom font style
+const myFontStyle = {
+  fontFamily: "'MyFont', sans-serif",
+  fontSize: "1rem" // Adjust size as needed
+};
+
 export default function NavbarComponent() {
   const [hasScrolled, setHasScrolled] = useState(false);
 
@@ -67,7 +73,10 @@ export default function NavbarComponent() {
               src="/corrupted_pixl.gif"
               alt="AIdaptics Logo"
             />
-            <span className="self-center whitespace-nowrap text-xl font-syne font-bold text-white ml-2">
+            <span 
+              className="self-center whitespace-nowrap text-xl font-bold text-white ml-2"
+              style={myFontStyle}
+            >
               AIdaptics
             </span>
           </Link>
@@ -87,7 +96,10 @@ export default function NavbarComponent() {
           >
             <div className="h-full flex flex-col">
               <div className="flex justify-between items-center p-6 border-b border-white/10">
-                <span className="text-xl font-syne font-bold text-white">
+                <span 
+                  className="text-xl font-bold text-white"
+                  style={myFontStyle}
+                >
                   AIdaptics
                 </span>
               </div>
@@ -109,10 +121,10 @@ export default function NavbarComponent() {
                     {mobileMenuItems.map((item) => (
                       <Link
                         href={item.href}
-                        className="flex w-full items-center justify-between px-6 py-4 text-white hover:text-white/80 border-b border-white/10 transition-colors font-syne font-bold"
+                        className="flex w-full items-center justify-between px-6 py-4 text-white hover:text-white/80 border-b border-white/10 transition-colors font-bold"
                         key={item.href}
                       >
-                        <SheetTrigger>{item.text}</SheetTrigger>
+                        <SheetTrigger >{item.text}</SheetTrigger>
                       </Link>
                     ))}
                   </nav>
@@ -127,7 +139,8 @@ export default function NavbarComponent() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="hidden md:flex md:space-x-8 text-white font-syne font-bold"
+          className="hidden md:flex md:space-x-8 text-white font-bold"
+          
         >
           {mobileMenuItems.map((item) => (
             <li key={item.href}>
@@ -146,7 +159,7 @@ export default function NavbarComponent() {
           className="hidden md:flex items-center gap-4"
         >
           <Link href="/get-started">
-            <Button variant="default" className="rounded-full">
+            <Button variant="default" className="rounded-full" style={myFontStyle}>
               Get Started <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
