@@ -76,11 +76,11 @@ const WhyChooseAIdaptics: React.FC = () => {
   return (
     <section  id="services" className="py-16 px-4 bg-black text-white">
       <div className="container mx-auto max-w-6xl">
-        <h2 className="text-4xl font-bold text-center mb-3">
+        <h2 className="text-4xl font-bold text-center mb-3" style={{ fontFamily: "'MyFont', sans-serif", }}>
           Why Choose <span className="text-indigo-400">AIdaptics</span>
         </h2>
         
-        <p className="text-white/70 text-center max-w-3xl mx-auto mb-12">
+        <p className="text-white/70 text-center max-w-3xl mx-auto mb-12" >
           Join industry leaders who trust AIdaptics to drive innovation and growth 
           through advanced artificial intelligence solutions.
         </p>
