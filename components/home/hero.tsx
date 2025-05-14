@@ -46,7 +46,7 @@ const Hero = () => {
             AIdaptics
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 mb-10">
-            Transforming data into intelligent insights
+            We turn Complex ideas into effortless solutions.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition duration-300">
