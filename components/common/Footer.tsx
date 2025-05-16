@@ -1,15 +1,12 @@
 import React from 'react';
-import { Twitter, Github, Linkedin } from 'lucide-react';
+import { Twitter, Github, Linkedin, Mail } from 'lucide-react';
 import { DiscordLogoIcon } from '@radix-ui/react-icons';
 
 const Footer = () => {
+
   const footerLinks = {
     AIdaptics: [
-      { name: 'Careers', href: '/Careers' },
-      { name: 'Contact', href: '#' },
-    ],
-    Handbook: [
-      { name: 'How we work', href: '#' },
+      { name: 'Careers', href: '#' },
       { name: 'Support', href: '/Support' },
     ],
     Legal: [
@@ -50,6 +47,7 @@ const Footer = () => {
     },
   ];
 
+
   return (
     <footer className="bg-black text-white py-16 px-6 font-syne font-bold transition-colors">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:space-x-16">
@@ -77,7 +75,10 @@ const Footer = () => {
           ))}
         </div>
            <div className="mb-16 lg:mb-0 lg:w-1/3 space-y-6">
-          <div className="space-y-1">
+           
+          <div className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors mb-4">
+            <Mail size={16} />
+            <a href="mailto:support@aidaptics.com" className="text-sm">support@aidaptics.com</a>
           </div>
           <div className="flex space-x-2">
             {socialLinks.map((social) => (

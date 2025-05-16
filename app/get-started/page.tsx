@@ -92,7 +92,7 @@ export default function GetStarted() {
       };
 
       // Send data to API route
-      const response = await fetch('/api/get-started', {
+      const response = await fetch('/api/SendInfo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(webhookData),
