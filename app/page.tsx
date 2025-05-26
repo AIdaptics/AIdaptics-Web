@@ -7,6 +7,7 @@ import WhyChooseAIdaptics from "@/components/home/whychoose";
 import AIdaptics from "@/components/home/AIdaptics";
 import Meeting from "@/components/home/meeting";
 import FAQs from "@/components/home/Faqs";
+import Reviews from "@/components/home/Reviews";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <Hero />
       <WhyChooseAIdaptics />
       <Meeting />
+      <Reviews />
       <FAQs />
       <AIdaptics />
 

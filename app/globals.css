@@ -147,3 +147,22 @@ html {
   scrollbar-width: none;  /* Firefox */
   background-color: #000000;
 }
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll var(--animation-duration, 40s) linear infinite;
+  animation-direction: var(--animation-direction, normal);
+}
+
+.scroller {
+  --animation-duration: 40s;
+  --animation-direction: normal;
+}

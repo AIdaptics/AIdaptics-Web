@@ -1,65 +1,289 @@
-import React, { useEffect, useState } from 'react';
+"use client";
+import { useEffect, useState, useRef } from "react";
+import Spline from "@splinetool/react-spline";
+import {  motion } from "framer-motion";
+import { Application } from "@splinetool/runtime";
+import Image from "next/image";
+import HeroGif from "@/public/quantum (1).gif";
 
-const Hero = () => {
-  const [isLargeDevice, setIsLargeDevice] = useState(false);
+const Hero: React.FC = () => {
+  const [canHandle3D, setCanHandle3D] = useState<boolean>(true);
+  const [isSplineLoaded, setIsSplineLoaded] = useState<boolean>(false);
+
+  const performanceCheckRef = useRef<boolean>(false);
 
   useEffect(() => {
-    // Check if window is available (client-side)
-    if (typeof window !== 'undefined') {
-      // Function to determine if device is PC/laptop/tablet
-      const checkDeviceSize = () => {
-        setIsLargeDevice(window.innerWidth >= 768); // 768px is typical tablet breakpoint
-      };
-      
-      // Check on initial load
-      checkDeviceSize();
-      
-      // Add event listener for window resize
-      window.addEventListener('resize', checkDeviceSize);
-      
-      // Cleanup
-      return () => window.removeEventListener('resize', checkDeviceSize);
-    }
+    const checkDeviceCapabilities = async () => {
+      // Basic checks
+      const isMobileDevice =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
+      if (isMobileDevice) {
+        setCanHandle3D(false);
+        return;
+      }
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+
+      if (!gl) {
+        setCanHandle3D(false);
+        return;
+      }
+
+      // Get GPU renderer info if available
+      let renderer = "";
+      try {
+        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+        if (debugInfo) {
+          renderer = gl
+            .getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+            .toLowerCase();
+        }
+      } catch {
+        console.log("GPU info not available");
+      }
+
+      // Check for known low-performance indicators
+      const isLowEndGPU =
+        renderer.includes("intel") ||
+        renderer.includes("mesa") ||
+        renderer.includes("swiftshader");
+
+      // Device memory check (if available)
+      const deviceMemory =
+        typeof (navigator as Navigator & { deviceMemory?: number }).deviceMemory === "number"
+          ? (navigator as Navigator & { deviceMemory?: number }).deviceMemory!
+          : 4;
+
+      // CPU cores check
+      const cpuCores = navigator.hardwareConcurrency || 4;
+
+      // Screen resolution check
+      const pixelRatio = window.devicePixelRatio || 1;
+      const screenResolution =
+        window.screen.width * window.screen.height * pixelRatio;
+
+      // Performance check using requestAnimationFrame
+      if (!performanceCheckRef.current) {
+        performanceCheckRef.current = true;
+
+        let frameCount = 0;
+        const lastTime = performance.now();
+        const measurePerformance = (timestamp: number) => {
+          frameCount++;
+
+          if (timestamp - lastTime >= 1000) {
+            // Check after 1 second
+            const fps = frameCount;
+            const score = calculatePerformanceScore(
+              fps,
+              deviceMemory,
+              cpuCores,
+              screenResolution,
+              isLowEndGPU,
+              isMobileDevice
+            );
+
+            setCanHandle3D(score >= 30); // Threshold can be adjusted
+            return;
+          }
+
+          requestAnimationFrame(measurePerformance);
+        };
+
+        requestAnimationFrame(measurePerformance);
+      }
+    };
+
+    const calculatePerformanceScore = (
+      fps: number,
+      memory: number,
+      cores: number,
+      resolution: number,
+      isLowEndGPU: boolean,
+      isMobile: boolean
+    ): number => {
+      // Base score from FPS (max 40 points)
+      let score = Math.min(40, (fps / 60) * 40);
+
+      // Memory score (max 20 points)
+      score += Math.min(20, (memory / 8) * 20);
+
+      // CPU score (max 20 points)
+      score += Math.min(20, (cores / 8) * 20);
+
+      // Resolution penalty for very high-res screens
+      const resolutionPenalty =
+        resolution > 1920 * 1080
+          ? Math.min(10, ((resolution - 1920 * 1080) / (3840 * 2160)) * 10)
+          : 0;
+      score -= resolutionPenalty;
+
+      // GPU penalty
+      if (isLowEndGPU) score *= 0.8;
+
+      // Mobile penalty
+      if (isMobile) score *= 0.9;
+
+      return Math.round(score);
+    };
+
+    // Run the check
+    checkDeviceCapabilities();
+
+    // Cleanup
+    return () => {
+      performanceCheckRef.current = false;
+    };
   }, []);
 
-  return (
-    <section className="relative w-full h-screen flex items-center justify-center bg-gradient-to-r from-blue-900 to-purple-900 overflow-hidden">
- {/* Background Video - only shown on larger devices */}
-      {isLargeDevice ? (
-        <div className="absolute inset-0 w-full h-full z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute w-full h-full object-cover"
-            style={{ minWidth: '100%', minHeight: '100%' }}
-          >
-            <source src="/videos/clarity-stream.webm" type="video/webm" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      ) : (
-        /* Content for smaller devices */
-        <div className="relative z-10 text-center px-4 max-w-5xl">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            AIdaptics
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-10">
-            We turn Complex ideas into effortless solutions.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition duration-300">
-              Get Started
-            </button>
-            <button className="mt-4 sm:mt-0 px-8 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white hover:text-blue-900 transition duration-300">
-              Learn More
-            </button>
-          </div>
-        </div>
-      )}
-    </section>
-  );
-};
+  // Performance monitoring during 3D scene usage
+  useEffect(() => {
+    if (!canHandle3D || !isSplineLoaded) return;
 
-export default Hero;
+    let frameCount = 0;
+    let lastCheck = performance.now();
+    let lowPerformanceStrikes = 0;
+    const MAX_STRIKES = 3;
+
+    const monitorPerformance = (timestamp: number) => {
+      frameCount++;
+
+      if (timestamp - lastCheck >= 1000) {
+        const currentFPS = frameCount;
+
+        if (currentFPS < 30) {
+          lowPerformanceStrikes++;
+
+          if (lowPerformanceStrikes >= MAX_STRIKES) {
+            setCanHandle3D(false);
+            return;
+          }
+        } else {
+          lowPerformanceStrikes = Math.max(0, lowPerformanceStrikes - 1);
+        }
+
+        frameCount = 0;
+        lastCheck = timestamp;
+      }
+
+      if (canHandle3D) {
+        requestAnimationFrame(monitorPerformance);
+      }
+    };
+
+    requestAnimationFrame(monitorPerformance);
+
+    return () => {
+      // Cleanup
+    };
+  }, [canHandle3D, isSplineLoaded]);
+
+  // const containerVariants = {
+  //   hidden: { opacity: 0 },
+  //   visible: {
+  //     opacity: 1,
+  //     transition: {
+  //       staggerChildren: 0.2,
+  //       delayChildren: 0.3,
+  //     },
+  //   },
+  // };
+
+  // const itemVariants = {
+  //   hidden: { opacity: 0, y: 20 },
+  //   visible: {
+  //     opacity: 1,
+  //     y: 0,
+  //     transition: {
+  //       duration: 0.5,
+  //       ease: "easeOut",
+  //     },
+  //   },
+  // };
+
+  const LoadingAnimation = () => (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <div className="relative">
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[0.0000001] h-[0.0000001] rounded-full"
+          style={{
+            boxShadow: "#170B42FF 0px 0px 150px 90px",
+            background: "#0B0974FF",
+          }}
+        />
+        <div className="relative flex gap-2">
+          {[0, 1, 2].map((index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 bg-white rounded-full animate-bounce`}
+              style={{
+                animationDelay: `${index * 0.2}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Handle Spline load
+  const onSplineLoad = (spline: Application): void => {
+    setIsSplineLoaded(true);
+    if (spline) {
+      spline.setZoom(0.8);
+    }
+  };
+
+  const Fallback = () => (
+    <div className="relative w-full h-full min-h-[300px] flex items-center justify-center">
+      <Image
+        src={HeroGif} // Replace with your fallback GIF path
+        alt="3D Animation Fallback"
+        width={500}
+        height={500}
+        className="relative z-10 w-full flex items-center justify-center scale-75 sm:scale-100 md:pt-16 overflow-visible min-w-[27rem] sm:min-w-[29rem] md:min-w-[34rem]"
+      />
+    </div>
+  );
+
+ return (
+  <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    {/* Spline Background */}
+    <div className="absolute inset-0 z-0">
+      {!isSplineLoaded && canHandle3D && <LoadingAnimation />}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isSplineLoaded || !canHandle3D ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full h-full flex justify-center items-center"
+      >
+        {canHandle3D ? (
+          <Spline
+          
+            scene="https://prod.spline.design/7jKK6gNppukm-Jdr/scene.splinecode"
+            onLoad={onSplineLoad}
+          />
+        ) : (
+          <Fallback />
+        )}
+      </motion.div>
+    </div>
+
+    {/* Centered "AIDAPTICS" Text Style */}
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1 }}
+      className="absolute inset-0 z-10 flex items-center justify-center"
+    >
+      <h1 className="text-7xl md:text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-purple-300 to-blue-400 tracking-widest drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)] font-tech"
+      style={{ fontFamily: "'MyFont', sans-serif", fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
+        AIDAPTICS
+      </h1>
+    </motion.div>
+  </div>
+);
+}
+export default Hero

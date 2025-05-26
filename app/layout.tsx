@@ -15,6 +15,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AIdaptics",
   description: "We turn Complex ideas into effortless solutions.",
+  openGraph: {
+    title: "AIdaptics",
+    description: "We turn Complex ideas into effortless solutions.",
+    images: [
+      {
+        url: "/AIdaptics.png", 
+        width: 1200,
+        height: 630,
+        alt: "AIdaptics - We Turn Complex ideas into effortless solutions",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AIdaptics",
+    description: "We turn Complex ideas into effortless solutions.",
+    images: ["/AIdaptics.png"], 
+  },
 };
 
 export default function RootLayout({
