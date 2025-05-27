@@ -166,3 +166,15 @@ html {
   --animation-duration: 40s;
   --animation-direction: normal;
 }
+
+/* Hide Spline logo by cropping the canvas */
+.spline-container canvas {
+  position: relative !important;
+  bottom: 20px !important;
+  right: 20px !important;
+}
+
+/* Or alternatively, crop the bottom-right corner */
+div[style*="width: 100%"][style*="height: 100%"] canvas {
+  clip-path: inset(0 60px 60px 0) !important;
+}

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Spline from "@splinetool/react-spline";
-import {  motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Application } from "@splinetool/runtime";
 import Image from "next/image";
 import HeroGif from "@/public/quantum (1).gif";
@@ -52,7 +52,8 @@ const Hero: React.FC = () => {
 
       // Device memory check (if available)
       const deviceMemory =
-        typeof (navigator as Navigator & { deviceMemory?: number }).deviceMemory === "number"
+        typeof (navigator as Navigator & { deviceMemory?: number })
+          .deviceMemory === "number"
           ? (navigator as Navigator & { deviceMemory?: number }).deviceMemory!
           : 4;
 
@@ -237,53 +238,81 @@ const Hero: React.FC = () => {
   };
 
   const Fallback = () => (
-    <div className="relative w-full h-full min-h-[300px] flex items-center justify-center">
+    <div className="relative w-full h-full min-h-[100vh] sm:min-h-[300px] flex items-center justify-center">
       <Image
         src={HeroGif} // Replace with your fallback GIF path
         alt="3D Animation Fallback"
         width={500}
         height={500}
-        className="relative z-10 w-full flex items-center justify-center scale-75 sm:scale-100 md:pt-16 overflow-visible min-w-[27rem] sm:min-w-[29rem] md:min-w-[34rem]"
+        className="relative z-10 w-screen h-screen sm:w-full sm:h-auto object-cover sm:object-contain"
+        priority
       />
     </div>
   );
 
- return (
-  <div className="relative min-h-screen w-full overflow-hidden bg-black">
-    {/* Spline Background */}
-    <div className="absolute inset-0 z-0">
-      {!isSplineLoaded && canHandle3D && <LoadingAnimation />}
+  return (
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      {/* Spline Background */}
+      <div className="absolute inset-0 z-0">
+        {!isSplineLoaded && canHandle3D && <LoadingAnimation />}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isSplineLoaded || !canHandle3D ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full h-full flex justify-center items-center relative overflow-hidden"
+        >
+          {canHandle3D ? (
+            <div className="w-full h-full relative overflow-hidden">
+              <div className="absolute inset-0 -bottom-16 -right-16">
+                <Spline
+                  scene="https://prod.spline.design/7jKK6gNppukm-Jdr/scene.splinecode"
+                  onLoad={onSplineLoad}
+                />
+              </div>
+            </div>
+          ) : (
+            <Fallback />
+          )}
+        </motion.div>
+      </div>
+
+      {/* Centered "AIDAPTICS" Text Style */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isSplineLoaded || !canHandle3D ? 1 : 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full h-full flex justify-center items-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       >
-        {canHandle3D ? (
-          <Spline
-          
-            scene="https://prod.spline.design/7jKK6gNppukm-Jdr/scene.splinecode"
-            onLoad={onSplineLoad}
-          />
-        ) : (
-          <Fallback />
-        )}
+        <h1
+          className="text-7xl md:text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-purple-300 to-blue-400 tracking-widest drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)] font-tech mb-6"
+          style={{
+            fontFamily: "'MyFont', sans-serif",
+            fontSize: "clamp(2.5rem, 6vw, 6rem)",
+          }}
+        >
+          AIDAPTICS
+        </h1>
+        <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="text-lg md:text-xl lg:text-2xl text-gray-300 font-light tracking-wide max-w-2xl mb-8"
+      >
+        We turn Complex ideas into effortless solutions.
+      </motion.p>
+      <motion.button
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 1 }}
+        className="relative inline-flex h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+      >
+        <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+        <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-6 py-1 text-sm font-medium text-white backdrop-blur-3xl">
+          Get Started
+        </span>
+      </motion.button>
       </motion.div>
     </div>
-
-    {/* Centered "AIDAPTICS" Text Style */}
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1 }}
-      className="absolute inset-0 z-10 flex items-center justify-center"
-    >
-      <h1 className="text-7xl md:text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-100 via-purple-300 to-blue-400 tracking-widest drop-shadow-[0_2px_8px_rgba(255,255,255,0.2)] font-tech"
-      style={{ fontFamily: "'MyFont', sans-serif", fontSize: "clamp(2.5rem, 6vw, 6rem)" }}>
-        AIDAPTICS
-      </h1>
-    </motion.div>
-  </div>
-);
-}
-export default Hero
+  );
+};
+export default Hero;

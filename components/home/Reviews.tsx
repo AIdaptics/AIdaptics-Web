@@ -13,12 +13,11 @@ export default function Reviews() {
         className="text-4xl font-bold text-center mb-8"
         // style={{ fontFamily: "'MyFont', sans-serif" }}
       >
-        Kind words from <span className="text-indigo-400">satisfied clients</span>
       </h3>
       <InfiniteMovingCards
         items={testimonials}
         direction="right"
-        speed="slow"
+        speed="normal"
       />
     </div>
   );
@@ -48,7 +47,7 @@ const testimonials = [
   },
   {
     quote:
-      "İ have no idea about this website but it's good to see what they discovered for the future and helping the nation with great skills good to be part of the team",
+      "AIdaptics delivered exactly what we needed, An Instagram Inbound ChatBot making workflow much more efficient. Highly recommended!",
     name: "Rohit",
     image:
       "https://cdn.discordapp.com/avatars/760791943478509579/5d008a3d7cf937f58ebe86bf3efd21b2.webp?size=80",
