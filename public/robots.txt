@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Block admin/dashboard areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login/
+Disallow: /signup/
+
+# Block temporary or development files
+Disallow: /temp/
+Disallow: /tmp/
+Disallow: /*.json$
+Disallow: /test/
+Disallow: /dev/
+
+# Block search and filter pages to avoid duplicate content
+Disallow: /search?
+Disallow: /*?sort=
+Disallow: /*?filter=
+
+# Sitemap
+Sitemap: https://aidaptics.com/sitemap.xml
+
