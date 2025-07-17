@@ -1,7 +1,4 @@
-"use server"
-// pages/api/callback.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import fetch from 'node-fetch';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Use environment variables for all secrets/config
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
@@ -59,11 +56,11 @@ async function checkEmailBooked(email: string, userUuid: string, token: string):
   return false;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const code = req.query.code as string;
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const code = url.searchParams.get('code');
   if (!code) {
-    // Redirect to error page
-    return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+    return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('No code provided')}`, req.url));
   }
 
   // Exchange code for access token
@@ -81,7 +78,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     body: data
   });
   if (!tokenResp.ok) {
-    return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+    const errorText = await tokenResp.text();
+    return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('Failed to get token: ' + errorText)}`, req.url));
   }
   const tokens = await tokenResp.json() as DiscordTokenResponse;
   const accessToken = tokens.access_token;
@@ -91,29 +89,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     headers: { Authorization: `Bearer ${accessToken}` }
   });
   if (!userResp.ok) {
-    return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+    const errorText = await userResp.text();
+    return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('Failed to get user info: ' + errorText)}`, req.url));
   }
   const user = await userResp.json() as DiscordUserResponse;
   const userId = user.id;
   const userEmail = user.email;
-  if (!userEmail) return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+  if (!userEmail) return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('Could not get your email from Discord.')}`, req.url));
 
   // Check Calendly
   const booked = await checkEmailBooked(userEmail, CALENDLY_USER_UUID, CALENDLY_TOKEN);
   if (!booked) {
-    return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+    return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('Calendly booking not found for your email.')}`, req.url));
   }
 
   // Add role to user
-  const url = `https://discord.com/api/guilds/${GUILD_ID}/members/${userId}/roles/${BOOKED_ROLE_ID}`;
+  const discordRoleUrl = `https://discord.com/api/guilds/${GUILD_ID}/members/${userId}/roles/${BOOKED_ROLE_ID}`;
   const botHeaders = {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
     "Content-Type": "application/json"
   };
-  const roleResp = await fetch(url, { method: "PUT", headers: botHeaders });
+  const roleResp = await fetch(discordRoleUrl, { method: "PUT", headers: botHeaders });
   if (roleResp.status === 204 || roleResp.status === 201) {
-    return res.redirect('/api/Discord-auth/vlad-callback/response?success');
+    return NextResponse.redirect(new URL('/api/discord-auth/vlad-callback/response?success', req.url));
   } else {
-    return res.redirect('/api/Discord-auth/vlad-callback/response?error');
+    const errorText = await roleResp.text();
+    return NextResponse.redirect(new URL(`/api/discord-auth/vlad-callback/response?error=${encodeURIComponent('Failed to assign role: ' + errorText)}`, req.url));
   }
-}
+} 

@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const isSuccess = searchParams.has("success");
-  const isError = searchParams.has("error");
+  const errorMsg = searchParams.get("error");
 
   let title = "";
   let message = "";
@@ -15,9 +15,9 @@ export async function GET(req: NextRequest) {
     message = "You have been given the BOOKED role. Enjoy your access!";
     color = "#22c55e";
     emoji = "✅";
-  } else if (isError) {
+  } else if (errorMsg) {
     title = "Error";
-    message = "There was a problem processing your request. Please try again or contact support.";
+    message = decodeURIComponent(errorMsg) || "There was a problem processing your request. Please try again or contact support.";
     color = "#ef4444";
     emoji = "❌";
   } else {
@@ -25,6 +25,16 @@ export async function GET(req: NextRequest) {
     message = "No status provided.";
     color = "#64748b";
     emoji = "ℹ️";
+  }
+
+  // Pretty-print JSON error messages if possible
+  let formattedMessage = message;
+  const jsonMatch = message.match(/\{[\s\S]*\}$/);
+  if (jsonMatch) {
+    try {
+      const json = JSON.parse(jsonMatch[0]);
+      formattedMessage = message.replace(jsonMatch[0], '') + '\n' + JSON.stringify(json, null, 2);
+    } catch {}
   }
 
   const html = `
@@ -65,6 +75,11 @@ export async function GET(req: NextRequest) {
         p {
           color: #cbd5e1;
           font-size: 1.1rem;
+          word-break: break-word;
+          white-space: pre-wrap;
+          text-align: left;
+          margin: 0 auto;
+          max-width: 90vw;
         }
         a {
           display: inline-block;
@@ -87,7 +102,7 @@ export async function GET(req: NextRequest) {
       <div class="card">
         <div class="emoji">${emoji}</div>
         <h1>${title}</h1>
-        <p>${message}</p>
+        <p>${formattedMessage}</p>
         <a href="/">Go Home</a>
       </div>
     </body>
