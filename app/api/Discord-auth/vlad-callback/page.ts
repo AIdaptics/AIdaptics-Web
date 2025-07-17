@@ -1,6 +1,5 @@
-import { NextRequest } from 'next/server';
-
-export async function GET(req: NextRequest) {
+"use server"    
+export async function GET() {
   const html = `
     <!DOCTYPE html>
     <html lang="en">
