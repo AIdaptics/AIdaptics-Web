@@ -2,7 +2,6 @@
 // pages/api/callback.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
-import { NextResponse } from 'next/server';
 
 // Use environment variables for all secrets/config
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
@@ -14,6 +13,26 @@ const BOOKED_ROLE_ID = process.env.DISCORD_BOOKED_ROLE_ID!;
 const CALENDLY_USER_UUID = process.env.CALENDLY_USER_UUID!;
 const CALENDLY_TOKEN = process.env.CALENDLY_TOKEN!;
 
+interface CalendlyEvent {
+  uri: string;
+}
+interface CalendlyInvitee {
+  email: string;
+}
+interface CalendlyEventsResponse {
+  collection: CalendlyEvent[];
+}
+interface CalendlyInviteesResponse {
+  collection: CalendlyInvitee[];
+}
+interface DiscordTokenResponse {
+  access_token: string;
+}
+interface DiscordUserResponse {
+  id: string;
+  email?: string;
+}
+
 async function checkEmailBooked(email: string, userUuid: string, token: string): Promise<boolean> {
   const eventsUrl = "https://api.calendly.com/scheduled_events";
   const userUrl = `https://api.calendly.com/users/${userUuid}`;
@@ -24,16 +43,16 @@ async function checkEmailBooked(email: string, userUuid: string, token: string):
   const params = new URLSearchParams({ user: userUrl, count: "100" });
   const response = await fetch(`${eventsUrl}?${params.toString()}`, { headers });
   if (!response.ok) return false;
-  const eventsJson = await response.json() as any;
+  const eventsJson = await response.json() as CalendlyEventsResponse;
   const events = eventsJson.collection || [];
   for (const event of events) {
     const eventUuid = event.uri.split("/").pop();
     const inviteesUrl = `https://api.calendly.com/scheduled_events/${eventUuid}/invitees`;
     const inviteesResp = await fetch(inviteesUrl, { headers });
     if (!inviteesResp.ok) continue;
-    const inviteesJson = await inviteesResp.json() as any;
+    const inviteesJson = await inviteesResp.json() as CalendlyInviteesResponse;
     const invitees = inviteesJson.collection || [];
-    if (invitees.some((invitee: any) => invitee.email === email)) {
+    if (invitees.some((invitee) => invitee.email === email)) {
       return true;
     }
   }
@@ -64,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!tokenResp.ok) {
     return res.redirect('/api/Discord-auth/vlad-callback/response?error');
   }
-  const tokens = await tokenResp.json() as any;
+  const tokens = await tokenResp.json() as DiscordTokenResponse;
   const accessToken = tokens.access_token;
 
   // Get user info
@@ -74,7 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!userResp.ok) {
     return res.redirect('/api/Discord-auth/vlad-callback/response?error');
   }
-  const user = await userResp.json() as any;
+  const user = await userResp.json() as DiscordUserResponse;
   const userId = user.id;
   const userEmail = user.email;
   if (!userEmail) return res.redirect('/api/Discord-auth/vlad-callback/response?error');
