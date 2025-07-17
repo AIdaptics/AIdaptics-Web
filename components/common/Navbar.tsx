@@ -72,6 +72,7 @@ export default function NavbarComponent() {
               height={35}
               src="/corrupted_pixl.gif"
               alt="AIdaptics Logo"
+              unoptimized={true}
             />
             <span 
               className="self-center whitespace-nowrap text-xl font-bold text-white ml-2"

@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://aidaptics.com"),
   title: "AIdaptics - We turn Complex ideas into effortless solutions",
   description: "AIdaptics transforms complex business challenges into streamlined AI-powered solutions. Expert development, automation, and digital transformation services.",
   keywords: ["AI solutions", "automation", "digital transformation", "software development", "artificial intelligence", "business solutions"],
@@ -64,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="hydrated">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
@@ -74,6 +75,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         {children}
       </body>

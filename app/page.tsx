@@ -9,6 +9,7 @@ import Meeting from "@/components/home/meeting";
 import FAQs from "@/components/home/Faqs";
 import Reviews from "@/components/home/Reviews";
 import Head from "next/head";
+import Portfolio from "@/components/home/Portfolio";
 
 export default function Home() {
   return (
@@ -33,14 +34,13 @@ export default function Home() {
       <div className="flex min-h-screen flex-col bg-black text-white">
         <Analytics />
         <Navbar />
-
         <Hero />
         <WhyChooseAIdaptics />
+        <Portfolio />
         <Meeting />
         <Reviews />
         <FAQs />
         <AIdaptics />
-
         <Footer />
       </div>
     </>
