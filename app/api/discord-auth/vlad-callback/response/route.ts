@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 
   if (isSuccess) {
     title = "Success!";
-    message = "You have been given the BOOKED role. Enjoy your access!";
+    message = "You have been given the BOOKED role. Enjoy your Stay!";
     color = "#22c55e";
     emoji = "✅";
   } else if (errorMsg) {
