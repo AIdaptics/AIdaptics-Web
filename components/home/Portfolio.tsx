@@ -57,7 +57,7 @@ export default function Portfolio() {
     if (currentIndex >= filteredProjects.length) {
       setCurrentIndex(0);
     }
-  }, [selectedCategory, filteredProjects.length]);
+  }, [selectedCategory, filteredProjects.length, currentIndex]);
 
   const current = filteredProjects[currentIndex] || null;
 
