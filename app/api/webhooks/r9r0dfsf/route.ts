@@ -67,16 +67,35 @@ const checkRateLimit = (token: string) => {
 const verifySignature = (payload: string, signature: string, secret: string): boolean => {
   try {
     if (!secret || !signature) {
+      console.log("Missing secret or signature:", { hasSecret: !!secret, hasSignature: !!signature });
       return false;
     }
+
+    // Extract the hash from the signature (format: "sha256=<hash>")
+    const signatureHash = signature.startsWith('sha256=') 
+      ? signature.substring(7) 
+      : signature;
+
+    console.log("Signature verification details:", {
+      originalSignature: signature,
+      extractedHash: signatureHash,
+      payloadLength: payload.length,
+      secretLength: secret.length
+    });
 
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payload, 'utf8')
       .digest('hex');
 
+    console.log("Expected vs received:", {
+      expected: expectedSignature,
+      received: signatureHash,
+      match: expectedSignature === signatureHash
+    });
+
     return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
+      Buffer.from(signatureHash, 'hex'),
       Buffer.from(expectedSignature, 'hex')
     );
   } catch (error) {
@@ -147,16 +166,26 @@ export async function POST(request: Request) {
     // Get raw body for signature verification
     const rawBody = await request.text();
     
-    // Verify webhook signature
-    const signature = request.headers.get('x-typeform-signature') || 
+    // Verify webhook signature - Typeform uses 'Typeform-Signature' header
+    const signature = request.headers.get('Typeform-Signature') || 
+                     request.headers.get('typeform-signature') ||
+                     request.headers.get('x-typeform-signature') || 
                      request.headers.get('x-signature') ||
                      request.headers.get('x-hub-signature-256');
+    
+    console.log("Signature verification debug:", {
+      signature: signature,
+      hasSignature: !!signature,
+      headers: Object.fromEntries(request.headers.entries())
+    });
     
     if (!signature || !verifySignature(rawBody, signature, webhookSecret)) {
       console.warn("Invalid webhook signature", {
         ip,
         hasSignature: !!signature,
-        signatureHeader: signature
+        signatureHeader: signature,
+        rawBodyLength: rawBody.length,
+        secretConfigured: !!webhookSecret
       });
       return NextResponse.json(
         { message: "Unauthorized" },
@@ -358,11 +387,6 @@ export async function GET() {
     methods: ["POST", "GET"],
     status: "healthy",
     configured: isConfigured,
-    features: [
-      "Secret key authentication",
-      "Rate limiting",
-      "Request validation"
-    ],
     timestamp: new Date().toISOString()
   });
 }
