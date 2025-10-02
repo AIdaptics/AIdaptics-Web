@@ -145,43 +145,49 @@ const verifySignature = (payload: string, signature: string, secret: string): bo
       .update(payload, 'utf8')
       .digest('hex');
 
-    // Only log signature details in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log("Expected vs received:", {
-        expected: expectedSignature,
-        received: signatureHash,
-        match: expectedSignature === signatureHash
-      });
+    // Detect if signature is base64 or hex encoded
+    const isBase64 = signatureHash.includes('=') || /^[A-Za-z0-9+/=]+$/.test(signatureHash);
+    const isHex = /^[0-9a-fA-F]+$/.test(signatureHash);
+
+    console.log("Signature format analysis:", {
+      original: signature,
+      extracted: signatureHash,
+      isBase64: isBase64,
+      isHex: isHex,
+      length: signatureHash.length
+    });
+
+    // Convert received signature to hex if it's base64
+    let receivedHex: string;
+    if (isBase64) {
+      try {
+        // Convert base64 to hex
+        const decoded = Buffer.from(signatureHash, 'base64');
+        receivedHex = decoded.toString('hex');
+        console.log("Converted base64 to hex:", { base64: signatureHash, hex: receivedHex });
+      } catch (error) {
+        console.error("Failed to decode base64 signature:", error);
+        return false;
+      }
+    } else {
+      receivedHex = signatureHash.toLowerCase();
     }
 
-    // Ensure both signatures are the same length (pad with zeros if needed)
-    const normalizeSignature = (sig: string) => {
-      // Remove any non-hex characters and ensure even length
-      const cleanSig = sig.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
-      return cleanSig.padStart(64, '0'); // SHA256 hex is always 64 characters
-    };
-
-    const normalizedReceived = normalizeSignature(signatureHash);
-    const normalizedExpected = normalizeSignature(expectedSignature);
-
-    // Only log normalized signatures in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log("Normalized signatures:", {
-        received: normalizedReceived,
-        expected: normalizedExpected,
-        match: normalizedReceived === normalizedExpected
-      });
-    }
+    console.log("Final signature comparison:", {
+      expected: expectedSignature,
+      receivedHex: receivedHex,
+      match: expectedSignature === receivedHex
+    });
 
     try {
       return crypto.timingSafeEqual(
-        Buffer.from(normalizedReceived, 'hex'),
-        Buffer.from(normalizedExpected, 'hex')
+        Buffer.from(expectedSignature, 'hex'),
+        Buffer.from(receivedHex, 'hex')
       );
     } catch (timingError) {
       console.log("Timing-safe comparison failed, using string comparison:", timingError);
       // Fallback to string comparison if timing-safe comparison fails
-      return normalizedReceived === normalizedExpected;
+      return expectedSignature === receivedHex;
     }
   } catch (error) {
     console.error("Signature verification error:", error);
@@ -289,16 +295,34 @@ export async function POST(request: Request) {
       });
     }
     
-    // SECURITY: Only allow signature bypass in development mode
-    const skipSignatureCheck = process.env.NODE_ENV === 'development' && 
-                              process.env.SKIP_SIGNATURE_VERIFICATION === 'true';
+    // SECURITY: Only allow signature bypass in development mode OR with explicit bypass flag
+    const skipSignatureCheck = (process.env.NODE_ENV === 'development' && 
+                               process.env.SKIP_SIGNATURE_VERIFICATION === 'true') ||
+                              process.env.FORCE_SKIP_SIGNATURE === 'true';
     
     if (!skipSignatureCheck && (!signature || !verifySignature(rawBody, signature, webhookSecret))) {
-      console.warn("Invalid webhook signature", {
-        ip: ip.substring(0, 8) + '...', // Mask IP for privacy
+      // Enhanced debugging for signature verification failure
+      const debugInfo = {
+        ip: ip.substring(0, 8) + '...',
         hasSignature: !!signature,
-        rawBodyLength: rawBody.length
-      });
+        signatureLength: signature?.length || 0,
+        rawBodyLength: rawBody.length,
+        signaturePreview: signature?.substring(0, 20) + '...',
+        secretConfigured: !!webhookSecret,
+        secretLength: webhookSecret?.length || 0
+      };
+      
+      console.warn("Invalid webhook signature - Debug Info:", debugInfo);
+      
+      // Log the actual signature verification attempt for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Signature verification debug:", {
+          receivedSignature: signature,
+          payloadPreview: rawBody.substring(0, 100) + '...',
+          payloadEnd: '...' + rawBody.substring(rawBody.length - 50)
+        });
+      }
+      
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
