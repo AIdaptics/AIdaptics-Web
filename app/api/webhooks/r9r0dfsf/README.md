@@ -85,6 +85,10 @@ The webhook transforms Typeform data into a structured format:
     "landedAt": "2025-01-02T09:59:00Z",
     "calculated": {},
     "variables": [],
+    "hidden": {
+      "auth_code": "xxxxx",
+      "user_id": "12345"
+    },
     "totalAnswers": 14,
     "formDefinition": {
       "id": "abc123",
@@ -152,6 +156,46 @@ The webhook supports **all Typeform field types** including:
 - ✅ **Answer Metadata**: Tracks answer completeness, length, and type
 - ✅ **Validation Status**: Shows which fields are required vs optional
 - ✅ **Multiple Choice Detection**: Identifies multi-select fields
+- ✅ **Hidden Fields Support**: Captures auth_code and other hidden parameters
+- ✅ **Auth Code Tracking**: Extracts and forwards authentication codes from URLs
+
+## Auth Code Support
+
+### URL-Based Auth Codes
+When users access your Typeform with an auth_code in the URL:
+```
+https://form.typeform.com/to/iWlPNbs0#auth_code=xxxxx
+```
+
+The webhook will automatically:
+- ✅ **Extract the auth_code** from the form submission
+- ✅ **Include it in Discord messages** with proper formatting
+- ✅ **Log auth_code information** for tracking
+- ✅ **Forward to target webhook** in the data payload
+
+### Discord Message Format
+```
+🎯 **New Typeform Submission**
+
+**Form:** My branded typeform
+**Submission ID:** 01K6HN31KEHKS16BSNPCXR5MHX
+**Auth Code:** `xxxxx`
+
+**Answers:**
+**Question 1:** Choice 1
+```
+
+### Data Structure
+```json
+{
+  "form": {
+    "hidden": {
+      "auth_code": "xxxxx",
+      "user_id": "12345"
+    }
+  }
+}
+```
 
 ## API Endpoints
 

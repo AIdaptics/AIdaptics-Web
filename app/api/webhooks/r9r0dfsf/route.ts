@@ -49,6 +49,7 @@ interface TypeformFormResponse {
   calculated?: Record<string, unknown>;
   variables?: Array<{ key: string; value: string }>;
   answers?: TypeformAnswer[];
+  hidden?: Record<string, string>; // For hidden fields like auth_code
   definition?: {
     id: string;
     title: string;
@@ -93,6 +94,12 @@ const rateLimitOptions = {
 const tokenCache = new LRUCache<string, number>({
   max: rateLimitOptions.uniqueTokenPerInterval,
   ttl: rateLimitOptions.interval,
+});
+
+// Deduplication cache for processed submissions
+const processedSubmissions = new LRUCache<string, boolean>({
+  max: 1000, // Store up to 1000 processed submissions
+  ttl: 24 * 60 * 60 * 1000, // 24 hours TTL
 });
 
 const checkRateLimit = (token: string) => {
@@ -347,13 +354,37 @@ export async function POST(request: Request) {
     
     // Log the received Typeform data for debugging (sanitized)
     const answerCount = typeformData.form_response?.answers?.length || 0;
+    const submissionId = typeformData.form_response?.token;
+    const formId = typeformData.form_response?.form_id;
+    
     console.log("Received Typeform webhook:", {
-      formId: typeformData.form_response?.form_id,
-      submissionId: typeformData.form_response?.token,
+      formId: formId,
+      submissionId: submissionId,
       answerCount: answerCount,
+      authCode: typeformData.form_response?.hidden?.auth_code || 'Not provided',
+      hiddenFields: Object.keys(typeformData.form_response?.hidden || {}),
       timestamp: new Date().toISOString(),
       ip: ip.substring(0, 8) + '...'
     });
+
+    // Check for duplicate submissions
+    const submissionKey = `${formId}-${submissionId}`;
+    if (processedSubmissions.has(submissionKey)) {
+      console.log("Duplicate submission detected, skipping:", {
+        submissionKey: submissionKey,
+        formId: formId,
+        submissionId: submissionId
+      });
+      return NextResponse.json({
+        message: "Submission already processed",
+        status: "duplicate",
+        submissionId: submissionId,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Mark submission as processed
+    processedSubmissions.set(submissionKey, true);
 
     // Validate Typeform data structure
     if (!typeformData.form_response) {
@@ -402,6 +433,7 @@ export async function POST(request: Request) {
         landedAt: typeformData.form_response.landed_at,
         calculated: typeformData.form_response.calculated,
         variables: typeformData.form_response.variables || [],
+        hidden: typeformData.form_response.hidden || {},
         totalAnswers: answerCount,
         formDefinition: typeformData.form_response.definition ? {
           id: typeformData.form_response.definition.id,
@@ -516,8 +548,15 @@ export async function POST(request: Request) {
         return `**Question ${index + 1}:** ${answerLabel}`;
       }).join('\n');
       
+      // Extract auth_code and other hidden fields
+      const authCode = transformedData.form.hidden?.auth_code || 'Not provided';
+      const hiddenFields = Object.entries(transformedData.form.hidden || {})
+        .filter(([key]) => key !== 'auth_code')
+        .map(([key, value]) => `**${key}:** ${value}`)
+        .join('\n');
+      
       payloadToSend = {
-        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submission ID:** ${transformedData.form.token}\n\n**Answers:**\n${answerText}`,
+        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submission ID:** ${transformedData.form.token}\n**Auth Code:** \`${authCode}\`\n\n**Answers:**\n${answerText}`,
         embeds: [{
           title: "Typeform Submission Details",
           color: 0x00ff00,
@@ -525,6 +564,11 @@ export async function POST(request: Request) {
             {
               name: "Form ID",
               value: transformedData.form.id,
+              inline: true
+            },
+            {
+              name: "Auth Code",
+              value: authCode,
               inline: true
             },
             {
@@ -537,7 +581,11 @@ export async function POST(request: Request) {
               value: new Date(transformedData.form.submittedAt).toLocaleString(),
               inline: true
             }
-          ],
+          ].concat(hiddenFields ? [{
+            name: "Other Hidden Fields",
+            value: hiddenFields,
+            inline: false
+          }] : []),
           timestamp: transformedData.form.submittedAt
         }]
       };
@@ -579,7 +627,9 @@ export async function POST(request: Request) {
       console.log("Successfully forwarded webhook data:", {
         formId: transformedData.form.id,
         submissionId: transformedData.form.token,
-        targetStatus: response.status
+        targetStatus: response.status,
+        submissionKey: submissionKey,
+        isFirstTime: true
       });
 
       return NextResponse.json({ 
@@ -647,6 +697,12 @@ export async function GET() {
     methods: ["POST", "GET"],
     status: "healthy",
     configured: isConfigured,
+    deduplication: {
+      enabled: true,
+      cacheSize: processedSubmissions.size,
+      maxCacheSize: 1000,
+      ttl: "24 hours"
+    },
     timestamp: new Date().toISOString()
   });
 }
