@@ -1,7 +1,7 @@
 # Typeform Webhook Endpoint
 
 ## Overview
-This is a robust webhook endpoint that receives data from Typeform and forwards it to another webhook URL with comprehensive security and validation features.
+This is a robust webhook endpoint that receives data from Typeform and forwards it to another webhook URL with comprehensive security and validation features. **Optimized for complex forms with 14+ questions and supports all Typeform field types.**
 
 ## Endpoint URL
 ```
@@ -84,7 +84,13 @@ The webhook transforms Typeform data into a structured format:
     "submittedAt": "2025-01-02T10:00:00Z",
     "landedAt": "2025-01-02T09:59:00Z",
     "calculated": {},
-    "variables": []
+    "variables": [],
+    "totalAnswers": 14,
+    "formDefinition": {
+      "id": "abc123",
+      "title": "My Complex Form",
+      "totalFields": 14
+    }
   },
   "answers": [
     {
@@ -92,12 +98,60 @@ The webhook transforms Typeform data into a structured format:
       "fieldType": "text",
       "fieldRef": "field_ref",
       "answer": "User answer",
-      "answerLabel": null
+      "answerLabel": null,
+      "hasAnswer": true,
+      "answerLength": 12,
+      "isMultipleChoice": false,
+      "isRequired": true
     }
   ],
   "originalData": { /* original Typeform payload */ }
 }
 ```
+
+## Supported Field Types
+
+The webhook supports **all Typeform field types** including:
+
+### Text Fields
+- `text`, `short_text`, `long_text`
+- `email`
+- `phone_number`
+- `url`
+
+### Choice Fields
+- `choice`, `single_choice`
+- `choices`, `multiple_choice`
+- `dropdown`
+
+### Number Fields
+- `number`
+- `rating`
+- `opinion_scale`
+- `nps` (Net Promoter Score)
+
+### Special Fields
+- `boolean`, `yes_no`
+- `date`
+- `file_upload`
+- `legal`
+- `statement`
+- `group` (nested answers)
+- `payment`
+
+## Complex Form Features
+
+### Large Form Support
+- ✅ **14+ Questions**: Optimized for complex forms
+- ✅ **Answer Validation**: Ensures all answers are properly processed
+- ✅ **Metadata Tracking**: Includes answer count and form complexity
+- ✅ **Performance Monitoring**: Logs large form submissions
+
+### Enhanced Data Structure
+- ✅ **Form Definition**: Includes form title and total field count
+- ✅ **Answer Metadata**: Tracks answer completeness, length, and type
+- ✅ **Validation Status**: Shows which fields are required vs optional
+- ✅ **Multiple Choice Detection**: Identifies multi-select fields
 
 ## API Endpoints
 
