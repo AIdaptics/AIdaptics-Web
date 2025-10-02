@@ -497,6 +497,55 @@ export async function POST(request: Request) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
+    // Log what we're sending to the target webhook
+    console.log("Forwarding to target webhook:", {
+      targetUrl: targetWebhookUrl,
+      payloadSize: JSON.stringify(transformedData).length,
+      answerCount: transformedData.answers.length,
+      formId: transformedData.form.id
+    });
+
+    // Create Discord-compatible payload if target is Discord webhook
+    const isDiscordWebhook = targetWebhookUrl.includes('discord.com') || targetWebhookUrl.includes('discordapp.com');
+    let payloadToSend;
+    
+    if (isDiscordWebhook) {
+      // Format for Discord webhook
+      const answerText = transformedData.answers.map((answer, index) => {
+        const answerLabel = answer.answerLabel || answer.answer || 'No answer';
+        return `**Question ${index + 1}:** ${answerLabel}`;
+      }).join('\n');
+      
+      payloadToSend = {
+        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submission ID:** ${transformedData.form.token}\n\n**Answers:**\n${answerText}`,
+        embeds: [{
+          title: "Typeform Submission Details",
+          color: 0x00ff00,
+          fields: [
+            {
+              name: "Form ID",
+              value: transformedData.form.id,
+              inline: true
+            },
+            {
+              name: "Total Answers",
+              value: transformedData.answers.length.toString(),
+              inline: true
+            },
+            {
+              name: "Submitted At",
+              value: new Date(transformedData.form.submittedAt).toLocaleString(),
+              inline: true
+            }
+          ],
+          timestamp: transformedData.form.submittedAt
+        }]
+      };
+    } else {
+      // Send full transformed data for other webhooks
+      payloadToSend = transformedData;
+    }
+
     try {
       const response = await fetch(targetWebhookUrl, {
         method: "POST",
@@ -506,7 +555,7 @@ export async function POST(request: Request) {
           "X-Webhook-Source": "typeform",
           "X-Webhook-ID": "r9r0dfsf"
         },
-        body: JSON.stringify(transformedData),
+        body: JSON.stringify(payloadToSend),
         signal: controller.signal
       });
 
