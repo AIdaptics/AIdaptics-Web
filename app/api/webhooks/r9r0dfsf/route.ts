@@ -2,6 +2,47 @@ import { NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
 import crypto from "crypto";
 
+// Typeform webhook data types
+interface TypeformField {
+  id: string;
+  type: string;
+  ref: string;
+}
+
+interface TypeformAnswer {
+  field: TypeformField;
+  text?: string;
+  email?: string;
+  choice?: {
+    label: string;
+    other?: string;
+  };
+  choices?: {
+    labels: string[];
+    other?: string;
+  };
+  number?: number;
+  boolean?: boolean;
+  date?: string;
+  [key: string]: unknown;
+}
+
+interface TypeformFormResponse {
+  form_id: string;
+  token: string;
+  submitted_at: string;
+  landed_at?: string;
+  calculated?: Record<string, unknown>;
+  variables?: Array<{ key: string; value: string }>;
+  answers?: TypeformAnswer[];
+}
+
+interface TypeformWebhookData {
+  form_response: TypeformFormResponse;
+  event_id?: string;
+  event_type?: string;
+}
+
 const rateLimitOptions = {
   interval: 60 * 1000, // 1 minute
   uniqueTokenPerInterval: 500, // Max 500 unique IPs per minute
@@ -124,9 +165,9 @@ export async function POST(request: Request) {
     }
 
     // Parse JSON data
-    let typeformData;
+    let typeformData: TypeformWebhookData;
     try {
-      typeformData = JSON.parse(rawBody);
+      typeformData = JSON.parse(rawBody) as TypeformWebhookData;
     } catch (parseError) {
       console.error("JSON parsing error:", parseError);
       return NextResponse.json(
@@ -170,9 +211,9 @@ export async function POST(request: Request) {
         calculated: typeformData.form_response.calculated,
         variables: typeformData.form_response.variables || []
       },
-      answers: typeformData.form_response.answers?.map((answer: any) => {
+      answers: typeformData.form_response.answers?.map((answer: TypeformAnswer) => {
         const fieldType = answer.field?.type;
-        let answerValue;
+        let answerValue: unknown;
         
         // Extract answer value based on field type
         switch (fieldType) {
