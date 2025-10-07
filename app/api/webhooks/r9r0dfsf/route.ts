@@ -542,23 +542,82 @@ export async function POST(request: Request) {
     let payloadToSend;
     
     if (isDiscordWebhook) {
-      // Format for Discord webhook
-      const answerText = transformedData.answers.map((answer, index) => {
-        const answerLabel = answer.answerLabel || answer.answer || 'No answer';
-        return `**Question ${index + 1}:** ${answerLabel}`;
-      }).join('\n');
-      
       // Extract auth_code and other hidden fields
       const authCode = transformedData.form.hidden?.auth_code || 'Not provided';
       const hiddenFields = Object.entries(transformedData.form.hidden || {})
         .filter(([key]) => key !== 'auth_code')
         .map(([key, value]) => `**${key}:** ${value}`)
         .join('\n');
-      
+
+      // Create a map of field IDs to question titles from the form definition
+      const fieldTitles = new Map<string, string>();
+      if (typeformData.form_response.definition?.fields) {
+        typeformData.form_response.definition.fields.forEach(field => {
+          fieldTitles.set(field.id, field.title);
+        });
+      }
+
+      // Format answers for embed fields
+      const embedFields = transformedData.answers.map((answer, index) => {
+        const questionTitle = fieldTitles.get(answer.fieldId || '') || `Question ${index + 1}`;
+        let answerValue = 'No answer';
+        
+        // Format answer value based on type
+        if (answer.answerLabel) {
+          answerValue = answer.answerLabel;
+        } else if (answer.answer !== null && answer.answer !== undefined) {
+          if (typeof answer.answer === 'object') {
+            // Handle complex answer types
+            if (answer.fieldType === 'choices' && Array.isArray(answer.answer)) {
+              answerValue = (answer.answer as any).labels?.join(', ') || 'Multiple selections';
+            } else if (answer.fieldType === 'payment' && typeof answer.answer === 'object') {
+              const payment = answer.answer as any;
+              answerValue = `${payment.amount} ${payment.currency} (${payment.status})`;
+            } else {
+              answerValue = JSON.stringify(answer.answer);
+            }
+          } else {
+            answerValue = String(answer.answer);
+          }
+        }
+
+        // Truncate long answers for Discord embed limits
+        if (answerValue.length > 1024) {
+          answerValue = answerValue.substring(0, 1021) + '...';
+        }
+
+        return {
+          name: questionTitle,
+          value: answerValue,
+          inline: false
+        };
+      });
+
+      // Add hidden fields as a separate field if they exist
+      if (hiddenFields) {
+        embedFields.push({
+          name: "Hidden Fields",
+          value: hiddenFields,
+          inline: false
+        });
+      }
+
+      // Format the submitted date to a more readable format
+      const submittedDate = new Date(transformedData.form.submittedAt);
+      const formattedDate = submittedDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+
       payloadToSend = {
-        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submission ID:** ${transformedData.form.token}\n**Auth Code:** \`${authCode}\`\n\n**Answers:**\n${answerText}`,
+        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submitted:** ${formattedDate}\n**Auth Code:** \`${authCode}\``,
         embeds: [{
-          title: "Typeform Submission Details",
+          title: "Submission Details",
           color: 0x00ff00,
           fields: [
             {
@@ -567,8 +626,8 @@ export async function POST(request: Request) {
               inline: true
             },
             {
-              name: "Auth Code",
-              value: authCode,
+              name: "Submission ID", 
+              value: transformedData.form.token,
               inline: true
             },
             {
@@ -576,16 +635,8 @@ export async function POST(request: Request) {
               value: transformedData.answers.length.toString(),
               inline: true
             },
-            {
-              name: "Submitted At",
-              value: new Date(transformedData.form.submittedAt).toLocaleString(),
-              inline: true
-            }
-          ].concat(hiddenFields ? [{
-            name: "Other Hidden Fields",
-            value: hiddenFields,
-            inline: false
-          }] : []),
+            ...embedFields
+          ],
           timestamp: transformedData.form.submittedAt
         }]
       };
