@@ -569,10 +569,11 @@ export async function POST(request: Request) {
           if (typeof answer.answer === 'object') {
             // Handle complex answer types
             if (answer.fieldType === 'choices' && Array.isArray(answer.answer)) {
-              answerValue = (answer.answer as any).labels?.join(', ') || 'Multiple selections';
+              const choicesAnswer = answer.answer as { labels?: string[] };
+              answerValue = choicesAnswer.labels?.join(', ') || 'Multiple selections';
             } else if (answer.fieldType === 'payment' && typeof answer.answer === 'object') {
-              const payment = answer.answer as any;
-              answerValue = `${payment.amount} ${payment.currency} (${payment.status})`;
+              const payment = answer.answer as { amount?: string; currency?: string; status?: string };
+              answerValue = `${payment.amount || 'N/A'} ${payment.currency || 'N/A'} (${payment.status || 'N/A'})`;
             } else {
               answerValue = JSON.stringify(answer.answer);
             }
