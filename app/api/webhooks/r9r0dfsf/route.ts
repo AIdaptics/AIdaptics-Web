@@ -525,6 +525,19 @@ export async function POST(request: Request) {
       originalData: typeformData // Keep original for reference
     };
 
+    // Extract auth_code from webhook URL if present (auth_code IS the user ID)
+    const webhookUrl = new URL(targetWebhookUrl);
+    let userIdToMention = '';
+    
+    // Check for auth_code in query parameters (?auth_code=)
+    userIdToMention = webhookUrl.searchParams.get('auth_code') || '';
+    
+    // Check for auth_code in hash fragment (#auth_code=)
+    if (!userIdToMention && webhookUrl.hash) {
+      const hashParams = new URLSearchParams(webhookUrl.hash.substring(1));
+      userIdToMention = hashParams.get('auth_code') || '';
+    }
+
     // Forward the data to the target webhook with timeout and retry logic
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
@@ -534,7 +547,8 @@ export async function POST(request: Request) {
       targetUrl: targetWebhookUrl,
       payloadSize: JSON.stringify(transformedData).length,
       answerCount: transformedData.answers.length,
-      formId: transformedData.form.id
+      formId: transformedData.form.id,
+      userIdToMention: userIdToMention
     });
 
     // Create Discord-compatible payload if target is Discord webhook
@@ -542,8 +556,16 @@ export async function POST(request: Request) {
     let payloadToSend;
     
     if (isDiscordWebhook) {
-      // Extract auth_code and other hidden fields
-      const authCode = transformedData.form.hidden?.auth_code || 'Not provided';
+      // Use auth_code from URL or fallback to hidden fields
+      const authCode = userIdToMention || transformedData.form.hidden?.auth_code || 'Not provided';
+      
+      // Build the form URL with auth_code if available
+      let formUrl = '';
+      if (authCode !== 'Not provided') {
+        const baseUrl = `https://form.typeform.com/to/${transformedData.form.id}`;
+        formUrl = `${baseUrl}#auth_code=${authCode}`;
+      }
+      
       const hiddenFields = Object.entries(transformedData.form.hidden || {})
         .filter(([key]) => key !== 'auth_code')
         .map(([key, value]) => `**${key}:** ${value}`)
@@ -615,8 +637,16 @@ export async function POST(request: Request) {
         hour12: true
       });
 
+      // Build the message content with user mention if userIdToMention is provided
+      let messageContent = `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submitted:** ${formattedDate}\n**Auth Code:** \`${authCode}\`${formUrl ? `\n**Form URL:** ${formUrl}` : ''}`;
+      
+      // Add user mention if user_id is provided in the webhook URL
+      if (userIdToMention) {
+        messageContent = `<@${userIdToMention}> ${messageContent}`;
+      }
+
       payloadToSend = {
-        content: `🎯 **New Typeform Submission**\n\n**Form:** ${transformedData.form.formDefinition?.title || 'Unknown'}\n**Submitted:** ${formattedDate}\n**Auth Code:** \`${authCode}\``,
+        content: messageContent,
         embeds: [{
           title: "Submission Details",
           color: 0x00ff00,
