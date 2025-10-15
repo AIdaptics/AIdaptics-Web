@@ -640,31 +640,6 @@ export default function CaseStudyDetailPage() {
 }
 
 // SEO metadata (client route fallback for app router; main metadata should be via generateMetadata on server)
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const cs = caseStudies.find((c) => c.slug === params.slug);
-  if (!cs) return {};
-  const title = `${cs.title} | AIdaptics Case Study`;
-  const description = `${cs.client}: ${cs.challenge}`.slice(0, 160);
-  const url = `https://aidaptics.com/case-studies/${cs.slug}`;
-  return {
-    title,
-    description,
-    alternates: { canonical: url },
-    openGraph: {
-      type: "article",
-      url,
-      title,
-      description,
-      siteName: "AIdaptics",
-      images: cs.thumbnail ? [{ url: cs.thumbnail }] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: cs.thumbnail ? [cs.thumbnail] : undefined,
-    },
-  };
-}
+// generateMetadata cannot be exported from a client component; metadata is handled via <Head> above
 
 
