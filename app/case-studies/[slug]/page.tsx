@@ -1,11 +1,13 @@
 "use client";
 import React from "react";
+import type { Metadata } from "next";
 import { useParams, notFound } from "next/navigation";
 import NavbarComponent from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { motion } from "framer-motion";
 import { caseStudies } from "../data";
 import Link from "next/link";
+import Head from "next/head";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,6 +32,39 @@ export default function CaseStudyDetailPage() {
 
   return (
     <>
+      <Head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://aidaptics.com/" },
+                { "@type": "ListItem", position: 2, name: "Case Studies", item: "https://aidaptics.com/case-studies" },
+                { "@type": "ListItem", position: 3, name: cs.title, item: `https://aidaptics.com/case-studies/${cs.slug}` },
+              ],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: cs.title,
+              description: cs.challenge,
+              author: { "@type": "Organization", name: "AIdaptics" },
+              publisher: { "@type": "Organization", name: "AIdaptics" },
+              mainEntityOfPage: `https://aidaptics.com/case-studies/${cs.slug}`,
+              image: cs.thumbnail ? [`https://aidaptics.com${cs.thumbnail}`] : undefined,
+            }),
+          }}
+        />
+      </Head>
       <NavbarComponent />
       <motion.main
         className="max-w-4xl mx-auto px-6 md:px-8 py-12 md:py-16 mt-24"
@@ -602,6 +637,34 @@ export default function CaseStudyDetailPage() {
       <Footer />
     </>
   );
+}
+
+// SEO metadata (client route fallback for app router; main metadata should be via generateMetadata on server)
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const cs = caseStudies.find((c) => c.slug === params.slug);
+  if (!cs) return {};
+  const title = `${cs.title} | AIdaptics Case Study`;
+  const description = `${cs.client}: ${cs.challenge}`.slice(0, 160);
+  const url = `https://aidaptics.com/case-studies/${cs.slug}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "article",
+      url,
+      title,
+      description,
+      siteName: "AIdaptics",
+      images: cs.thumbnail ? [{ url: cs.thumbnail }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: cs.thumbnail ? [cs.thumbnail] : undefined,
+    },
+  };
 }
 
 

@@ -5,6 +5,7 @@ import Footer from "@/components/common/Footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import Head from "next/head";
 import { caseStudies } from "./data";
 
 const containerVariants = {
@@ -110,6 +111,24 @@ const SectionCard = ({
 export default function CaseStudiesPage() {
   return (
     <>
+      <Head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              itemListElement: caseStudies.map((cs, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                url: `https://aidaptics.com/case-studies/${cs.slug}`,
+                name: cs.title,
+              })),
+            }),
+          }}
+        />
+      </Head>
       <NavbarComponent />
       <motion.main
         className="max-w-5xl mx-auto px-6 md:px-8 py-10 md:py-14 mt-24"
@@ -152,7 +171,7 @@ export default function CaseStudiesPage() {
                     transition={{ duration: 0.4, ease: "easeOut" }}
                     className="w-16 h-16 md:w-20 md:h-20"
                   >
-                    <Image src={cs.thumbnail} alt={cs.title} width={96} height={96} className="object-contain w-full h-full" />
+                    <Image src={cs.thumbnail} alt={`${cs.title} case study thumbnail`} width={96} height={96} className="object-contain w-full h-full" />
                   </motion.div>
                 </Link>
               )}
@@ -184,5 +203,7 @@ export default function CaseStudiesPage() {
     </>
   );
 }
+
+// metadata cannot be exported from a client component; meta is handled via <Head> above if needed
 
 
