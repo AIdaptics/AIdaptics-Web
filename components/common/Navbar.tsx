@@ -30,7 +30,7 @@ export default function NavbarComponent() {
   // Array of mobile menu items (can be different if needed)
   const mobileMenuItems = [
     { href: "/", text: "Home" },
-    { href: "/#about", text: "About" },
+    { href: "/case-studies", text: "Case Studies" },
     { href: "/#services", text: "Services" },
     { href: "/#testimonials", text: "Testimonials" },
     { href: "/#faqs", text: "Faqs" },

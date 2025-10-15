@@ -100,8 +100,9 @@ const TermsOfServicePage = () => {
             To the maximum extent permitted by law:
           </p>
           <ul className="list-disc pl-6 mb-4 space-y-2">
-            <li>AIdaptics and its affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, or goodwill.</li>
-            <li>In no event shall our aggregate liability for all claims related to the services exceed the greater of $100 or the amount you paid to AIdaptics for the services in the past 12 months.</li>
+            <li>AIdaptics and its affiliates shall not be liable for any indirect, incidental, special, exemplary, consequential or punitive damages, including without limitation loss of revenue, profits, savings, data, use, goodwill, business interruption, or cost of substitute services, even if advised of the possibility of such damages.</li>
+            <li>We are not responsible for failures or delays beyond our reasonable control, including outages, third‑party platform changes, force majeure events, or acts/omissions of vendors, networks, or integrations.</li>
+            <li>To the fullest extent permitted by law, our total cumulative liability arising out of or related to the services shall not exceed the greater of USD $50 or the amounts actually paid by you to AIdaptics for the specific service giving rise to the claim during the six (6) months preceding the event.</li>
             <li>These limitations will apply even if we have been advised of the possibility of such damages.</li>
           </ul>
         </motion.section>
@@ -116,7 +117,38 @@ const TermsOfServicePage = () => {
             <li>That our services will be uninterrupted, secure, or error-free.</li>
             <li>That any errors or defects will be corrected.</li>
             <li>That our services or the servers that make them available are free of viruses or other harmful components.</li>
+            <li>That any business outcomes, conversions, or results are guaranteed; all metrics and case studies are illustrative only.</li>
           </ul>
+        </motion.section>
+
+        <motion.section className="mb-8" variants={itemVariants}>
+          <h2 className="text-xl font-bold font-syne mb-4">Third‑Party Content, Logos and Services</h2>
+          <ul className="list-disc pl-6 mb-4 space-y-2">
+            <li>Our work may connect to or rely on third‑party products or services (e.g., APIs, platforms, CRMs, webhooks, hosting providers). Those services are provided by their respective owners, and we do not control or endorse them.</li>
+            <li>All third‑party logos, marks, screenshots, datasets and assets remain the property of their respective owners. You are responsible for obtaining and maintaining all necessary rights and permissions to use such assets in your environment.</li>
+            <li>AIdaptics is not responsible for: (a) changes made by third parties; (b) outages, data loss, or rate‑limit errors; or (c) any use of third‑party assets without sufficient rights. Upon notice, we will remove any referenced third‑party asset from our materials.</li>
+          </ul>
+        </motion.section>
+
+        <motion.section className="mb-8" variants={itemVariants}>
+          <h2 className="text-xl font-bold font-syne mb-4">Indemnification</h2>
+          <p className="mb-4">
+            You agree to defend, indemnify and hold harmless AIdaptics, its affiliates, and their respective officers, directors, employees and agents from and against any claims, liabilities, damages, losses and expenses (including reasonable attorneys’ fees) arising out of or in any way connected with: (a) your use of the services; (b) your violation of these Terms; (c) your content or data; or (d) your use of third‑party assets or services.
+          </p>
+        </motion.section>
+
+        <motion.section className="mb-8" variants={itemVariants}>
+          <h2 className="text-xl font-bold font-syne mb-4">No Professional Advice</h2>
+          <p className="mb-4">
+            Unless expressly stated in a separate signed agreement, the services do not constitute legal, financial, medical, or other professional advice. You are solely responsible for your compliance and decisions.
+          </p>
+        </motion.section>
+
+        <motion.section className="mb-8" variants={itemVariants}>
+          <h2 className="text-xl font-bold font-syne mb-4">Beta Features and Experimental Automations</h2>
+          <p className="mb-4">
+            From time to time we may make experimental, beta or proof‑of‑concept features available. Such features are provided without support or warranties and may be modified, suspended, or discontinued at any time.
+          </p>
         </motion.section>
 
         <motion.section className="mb-8" variants={itemVariants}>

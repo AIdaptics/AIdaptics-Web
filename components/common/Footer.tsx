@@ -8,6 +8,7 @@ const Footer = () => {
     AIdaptics: [
       { name: 'Careers', href: '#' },
       { name: 'Support', href: '/Support' },
+      { name: 'Case Studies', href: '/case-studies' },
     ],
     Legal: [
       { name: 'Cookie Policy', href: '/cookie-policy' },
@@ -78,7 +79,7 @@ const Footer = () => {
            
           <div className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors mb-4">
             <Mail size={16} />
-            <a href="mailto:support@aidaptics.com" className="text-sm">support@aidaptics.com</a>
+            <a href="mailto:hi@aidaptics.com" className="text-sm">hi@aidaptics.com</a>
           </div>
           <div className="flex space-x-2">
             {socialLinks.map((social) => (

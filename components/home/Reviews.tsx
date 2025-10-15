@@ -43,7 +43,7 @@ const testimonials = [
       "As the founder of Magnimont, I’ve been seriously impressed with the Discord bot AIdaptics built for us. It handles everything from scheduling meetings and tracking project updates to managing GitHub workflows, sending newsletters, and even powering our company website. Setup was super smooth, and it’s made our day-to-day so much easier. Honestly, one of the smartest tools we've added to our stack.",
     name: "Vikas Nath Jha",
     image:
-      "https://cdn.discordapp.com/avatars/532177714203852800/a_57dffef20fddc4cf18f6f55a60893d08.webp?size=80",
+      "https://cdn.discordapp.com/attachments/1386046497652609086/1428067379472236584/CEO_Vikas.jpg?ex=68f126e3&is=68efd563&hm=172fe98cdbf4627b9668b935150d84781427b1004a9f8b728721286ff3ef85d8",
   },
   {
     quote:

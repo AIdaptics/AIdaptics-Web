@@ -36,7 +36,6 @@ export default function Home() {
         <Navbar />
         <Hero />
         <WhyChooseAIdaptics />
-        <Portfolio />
         <Meeting />
         <Reviews />
         <FAQs />
