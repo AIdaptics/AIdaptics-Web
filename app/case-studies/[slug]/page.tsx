@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import type { Metadata } from "next";
 import { useParams, notFound } from "next/navigation";
 import NavbarComponent from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
@@ -35,7 +34,6 @@ export default function CaseStudyDetailPage() {
       <Head>
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -50,7 +48,6 @@ export default function CaseStudyDetailPage() {
         />
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
