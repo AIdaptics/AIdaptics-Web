@@ -88,9 +88,21 @@ export const InfiniteMovingCards = ({
         ref={scrollerRef}
         className={cn(
           "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
-          start && "animate-scroll",
-          pauseOnHover && "hover:[animation-play-state:paused]"
+          start && "animate-scroll"
         )}
+        style={pauseOnHover ? {
+          animationPlayState: 'running'
+        } : undefined}
+        onMouseEnter={(e) => {
+          if (pauseOnHover) {
+            e.currentTarget.style.animationPlayState = 'paused';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (pauseOnHover) {
+            e.currentTarget.style.animationPlayState = 'running';
+          }
+        }}
       >
         {items.map((item, idx) => (
           <li

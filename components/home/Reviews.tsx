@@ -7,18 +7,19 @@ export default function Reviews() {
   return (
     <div
       id="testimonials"
-      className="h-[40rem] rounded-md flex flex-col antialiased items-center justify-center relative overflow-hidden"
+      className="py-16 px-4 bg-black text-white"
     >
-      <h3
-        className="text-4xl font-bold text-center mb-8"
-        // style={{ fontFamily: "'MyFont', sans-serif" }}
-      >
-      </h3>
-      <InfiniteMovingCards
-        items={testimonials}
-        direction="right"
-        speed="normal"
-      />
+      <div className="container mx-auto max-w-6xl">
+        <h2 className="text-4xl font-bold text-center mb-12" style={{ fontFamily: "'MyFont', sans-serif" }}>
+          What Our <span className="text-indigo-400">Clients</span> Say
+        </h2>
+        <InfiniteMovingCards
+          items={testimonials}
+          direction="right"
+          speed="fast"
+          pauseOnHover={true}
+        />
+      </div>
     </div>
   );
 }

@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import { PhoneInput } from "@/components/ui/phone-input";
+import type { Value } from "react-phone-number-input";
 
 export default function GetStarted() {
 
@@ -17,7 +19,7 @@ export default function GetStarted() {
     name: "",
     company: "",
     email: "",
-    phone: "",
+    phone: "" as Value,
     message: ""
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -56,6 +58,10 @@ export default function GetStarted() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (value: Value) => {
+    setFormData(prev => ({ ...prev, phone: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,7 +123,7 @@ export default function GetStarted() {
         name: "",
         company: "",
         email: "",
-        phone: "",
+        phone: "" as Value,
         message: ""
       });
       
@@ -159,8 +165,9 @@ export default function GetStarted() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-gray-900/50 rounded-xl p-6 sm:p-8 border border-gray-800"
+          className="relative rounded-2xl p-[1px] bg-gradient-to-r from-indigo-500/35 via-blue-500/10 to-cyan-400/35 shadow-[0_20px_60px_-28px_rgba(0,0,0,0.7)]"
         >
+          <div className="rounded-[1.05rem] p-6 sm:p-8 bg-black/80 border border-gray-800">
           {isSuccess ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -184,87 +191,83 @@ export default function GetStarted() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-white mb-1">Full Name</label>
+                  <label htmlFor="name" className="block text-white font-medium mb-2">Full Name</label>
                   <input 
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="John Doe" 
-                    className={`w-full px-3 py-2 bg-gray-800/50 border ${errors.name ? 'border-red-500' : 'border-gray-700'} rounded-md text-white`}
+                    placeholder="Jariullah" 
+                    className={`w-full px-4 py-3 bg-[#0f1624] border transition-all text-sm ${errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#1f2a3d] hover:border-[#2a3a55] focus:border-[#4f82ff] focus:ring-[#4f82ff]/20'} rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2`}
                   />
-                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                  {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                 </div>
 
                 {/* Company Field */}
                 <div>
-                  <label htmlFor="company" className="block text-white mb-1">Company (Optional)</label>
+                  <label htmlFor="company" className="block text-white font-medium mb-2">Company (Optional)</label>
                   <input 
                     type="text"
                     id="company"
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    placeholder="Your Company" 
-                    className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-md text-white"
+                    placeholder="AIdaptics, LLC" 
+                    className="w-full px-4 py-3 bg-[#0f1624] border border-[#1f2a3d] hover:border-[#2a3a55] focus:border-[#4f82ff] rounded-lg text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-[#4f82ff]/20 text-sm"
                   />
                 </div>
 
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-white mb-1">Email</label>
+                  <label htmlFor="email" className="block text-white font-medium mb-2">Email</label>
                   <input 
                     type="email"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="you@example.com" 
-                    className={`w-full px-3 py-2 bg-gray-800/50 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-md text-white`}
+                    placeholder="hi@aidaptics.com" 
+                    className={`w-full px-4 py-3 bg-[#0f1624] border transition-all text-sm ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#1f2a3d] hover:border-[#2a3a55] focus:border-[#4f82ff] focus:ring-[#4f82ff]/20'} rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2`}
                   />
-                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 {/* Phone Field */}
                 <div>
-                  <label htmlFor="phone" className="block text-white mb-1">Phone Number</label>
-                  <input 
-                    type="tel"
-                    id="phone"
-                    name="phone"
+                  <label htmlFor="phone" className="block text-white font-medium mb-2">Phone Number</label>
+                  <PhoneInput
+                    defaultCountry="US"
                     value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+1 (555) 000-0000" 
-                    className={`w-full px-3 py-2 bg-gray-800/50 border ${errors.phone ? 'border-red-500' : 'border-gray-700'} rounded-md text-white`}
+                    onChange={handlePhoneChange}
                   />
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
                 </div>
               </div>
 
               {/* Message Field */}
               <div>
-                <label htmlFor="message" className="block text-white mb-1">Message</label>
+                <label htmlFor="message" className="block text-white font-medium mb-2">Message</label>
                 <textarea 
                   id="message"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Your message here..." 
-                  rows={4}
-                  className={`w-full px-3 py-2 bg-gray-800/50 border ${errors.message ? 'border-red-500' : 'border-gray-700'} rounded-md text-white`}
+                  placeholder="Tell us about your project..." 
+                  rows={5}
+                  className={`w-full px-4 py-3 bg-[#0f1624] border transition-all resize-none text-sm ${errors.message ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[#1f2a3d] hover:border-[#2a3a55] focus:border-[#4f82ff] focus:ring-[#4f82ff]/20'} rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2`}
                 />
-                {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+                {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
               </div>
 
               <button 
                 type="submit"
-                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full px-4 py-3 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] hover:from-[#4b8df7] hover:to-[#2f6eee] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-[#4f82ff]/35"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Sending...
                   </>
                 ) : (
@@ -273,6 +276,7 @@ export default function GetStarted() {
               </button>
             </form>
           )}
+          </div>
         </motion.div>
       </div>
     </div>

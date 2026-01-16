@@ -14,47 +14,48 @@ export default function Faq() {
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const faqItems = [
-    {
-      question: "Can AI really transform my business operations?",
-      answer:
-        "Absolutely. Our AI solutions have helped businesses reduce operational costs by up to 40% and increase customer engagement by 300%. Whether it's automating customer support with intelligent chatbots or streamlining workflows with custom scripts, we'll help you leverage AI to create measurable impact.",
-    },
-    {
-      question: "What ROI can I expect from your digital solutions?",
-      answer:
-        "Our clients typically see significant returns within the first 6 months. Recent projects have delivered 200% increases in lead generation, 45% improvements in customer satisfaction, and 60% reductions in operational costs. We'll work with you to set clear KPIs and track your success metrics.",
-    },
-    {
-      question: "How quickly can you bring my digital vision to life?",
-      answer:
-        "Speed without compromising quality is our specialty. Most websites launch within 4 weeks, and custom AI solutions within 6-8 weeks. We use an agile approach that gets your core features live fast, then iterates based on real user data. You'll see progress from day one.",
-    },
-    {
-      question: "Will my solution scale as my business grows?",
-      answer:
-        "That's exactly what we design for. Every solution we build uses scalable architecture and future-proof technology. Whether you're handling 100 or 100,000 users, your digital infrastructure will grow seamlessly with your business.",
-    },
-    {
-      question: "How do you ensure my project stays on budget?",
-      answer:
-        "Transparency is built into our process. You'll receive detailed cost breakdowns, milestone-based payments, and regular progress updates. We've maintained a 98% on-budget delivery rate across hundreds of projects through careful planning and clear communication.",
-    },
-    {
-      question: "What makes AIdaptics different from other agencies?",
-      answer:
-        "We're not just developers – we're strategic partners in your growth. Our team brings expertise from working with industry leaders, cutting-edge AI capabilities, and a track record of delivering solutions that drive real business results. Plus, you'll work directly with senior experts, not junior teams.",
-    },
-    {
-      question: "Do you provide ongoing support and updates?",
-      answer:
-        "Your success is our long-term commitment. Every project includes dedicated support, regular performance optimization, and proactive updates. Our average client partnership spans 3+ years because we continue delivering value long after launch.",
-    },
-    {
-      question: "How do we get started?",
-      answer:
-        "Let's begin with a strategic consultation. We'll discuss your goals, explore potential solutions, and create a roadmap for your digital transformation. Book your free consultation today, and we'll show you exactly how we can drive your business forward.",
-    },
-  ];
+  {
+    question: "Can AI actually transform my business operations?",
+    answer:
+      "Yes. AI and automation can radically change how your business runs. Our clients leverage intelligent agents, automated workflows, and custom AI systems to eliminate manual work, reduce operating costs, and dramatically improve user engagement. We build practical implementations that create measurable efficiency gains and revenue impact.",
+  },
+  {
+    question: "What kind of ROI should I expect from your AI and automation solutions?",
+    answer:
+      "You should expect clear, measurable return on investment within the first 6 months. Clients typically see major rises in qualified leads, lower support costs, higher retention, and streamlined operations. We set data driven KPIs upfront, track performance continuously, and refine models and automations to maximize ROI.",
+  },
+  {
+    question: "How fast can you bring my digital and AI vision to life?",
+    answer:
+      "Speed with precision is our strength. Standard websites are deployed in about 4 weeks and custom AI automations are production ready in 6 to 8 weeks. Using rapid prototyping and iterative releases, we show real progress early and refine based on actual usage and performance data.",
+  },
+  {
+    question: "Will the solution scale as my business grows and traffic increases?",
+    answer:
+      "Yes. Scalability is engineered into every system we build. We use robust architecture patterns, cloud native infrastructure, and performance optimization strategies so your apps and AI agents handle growth, spikes in usage, and expanding data loads without breaking performance or reliability.",
+  },
+  {
+    question: "How do you ensure my project stays on budget and avoids scope creep?",
+    answer:
+      "Budget control is built into our process. We provide transparent cost breakdowns, defined milestones, and regular budget reporting. Combined with agile planning and continuous feedback loops, this results in predictable outcomes and a high on-budget delivery rate across projects.",
+  },
+  {
+    question: "What makes AIdaptics different from other digital and AI agencies?",
+    answer:
+      "We combine deep technical expertise with strategic execution. You work directly with senior engineers and AI architects who have shipped complex automation and growth systems. We focus on business metrics and technical quality, not just deliverables. Our solutions consistently drive efficiency, scale, and business performance.",
+  },
+  {
+    question: "Do you provide ongoing support, updates and performance optimization?",
+    answer:
+      "Yes. Ongoing support and performance tuning are core parts of our service. We monitor deployments, push regular updates, optimize models and workflows, and proactively address risks. Our long term client relationships reflect continuous value delivery beyond the initial launch.",
+  },
+  {
+    question: "How do I get started with AIdaptics?",
+    answer:
+      "Begin with a strategy consultation where we map your growth goals, technical requirements, and opportunity areas. From that session we create a clear implementation roadmap with timelines and success metrics. Schedule your free consultation to start driving measurable business results.",
+  },
+];
+
 
   const handleItemToggle = (value: string) => {
     setOpenItems((prev) => (prev.includes(value) ? [] : [value]));
